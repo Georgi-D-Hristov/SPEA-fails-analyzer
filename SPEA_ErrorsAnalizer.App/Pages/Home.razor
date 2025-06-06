@@ -1,0 +1,49 @@
+﻿@page "/"
+
+<h3>SPEA fails analyzer</h3>
+
+<InputFile OnChange="HandleFileSelected" />
+
+@if (results.Count > 0)
+{
+    <h4>Results:</h4>
+    <ul>
+        @foreach (var item in results)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<string> results = new();
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        using var stream = file.OpenReadStream();
+        using var reader = new StreamReader(stream);
+
+        string content = await reader.ReadToEndAsync();
+
+        // Анализирай съдържанието
+        AnalyzeFile(content);
+    }
+
+    private void AnalyzeFile(string text)
+    {
+        results.Clear();
+
+        // Примерно парсване: Извличане на серийните номера
+        var lines = text.Split(Environment.NewLine);
+
+        foreach (var line in lines)
+        {
+            if (line.Contains("SN ("))
+            {
+                results.Add(line.Trim());
+            }
+        }
+    }
+}
